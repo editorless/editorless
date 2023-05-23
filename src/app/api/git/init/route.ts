@@ -1,10 +1,7 @@
 import { cookies } from "next/headers";
 
-import { clone } from "isomorphic-git";
-import * as http from "isomorphic-git/http/node";
-
+import Git from "lib/git";
 import ResponseDTO from "lib/response";
-import S3FS from "lib/s3fs";
 import { getAuthData } from "lib/token";
 
 export async function POST() {
@@ -21,19 +18,7 @@ export async function POST() {
     });
   }
 
-  const fs = S3FS.create();
-  try {
-    await fs.promises.unlink(`/${authData.id}/.git/HEAD`);
-    await fs.promises.unlink(`/${authData.id}/.git/refs/heads/master`);
-    await fs.promises.rmdir(`/${authData.id}/.git/refs/heads`);
-  } catch {}
-
-  await clone({
-    fs,
-    http,
-    dir: `/${authData.id}`,
-    url: "https://github.com/maxswjeon/maxswjeon",
-  });
+  await Git.getInstance(authData.token);
 
   return ResponseDTO.status(200).json({
     result: true,

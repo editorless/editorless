@@ -1,3 +1,4 @@
+import { Octokit } from "@octokit/rest";
 import * as jose from "jose";
 
 const secret = new TextEncoder().encode(process.env.TOKEN_SECRET);
@@ -45,16 +46,8 @@ async function validateTokenData(token: string) {
 
 async function validateTokenRemote(accessToken: string) {
   try {
-    const response = await fetch("https://api.github.com/user", {
-      headers: {
-        Accept: "application/vnd.github.json",
-        Authorization: `Bearer ${accessToken}`,
-        "X-GitHub-Api-Version": "2022-11-28",
-      },
-      cache: "no-cache",
-    });
-
-    const data = await response.json();
+    const octokit = new Octokit({ auth: accessToken });
+    const { data } = await octokit.rest.users.getAuthenticated();
 
     return {
       id: data.id,

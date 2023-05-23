@@ -3,8 +3,10 @@ declare global {
     interface ProcessEnv {
       BASE_URL: string;
       GITHUB_CLIENT_ID: string;
-
       GITHUB_CLIENT_SECRET: string;
+
+      GIT_PARENT_OWNER: string;
+      GIT_PARENT_REPO: string;
 
       AWS_REGION: string;
       AWS_ACCESS_KEY_ID: string;
