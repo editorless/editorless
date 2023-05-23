@@ -59,6 +59,7 @@ async function validateTokenRemote(accessToken: string) {
     return {
       id: data.id,
       avatar: data.avatar_url,
+      username: data.login,
       name: data.name,
       email: data.email,
     };
