@@ -44,9 +44,9 @@ export async function POST(req: Request) {
     await git.createRepo("editorless", "config");
   }
 
-  // if (type === "create_folder_userrepo") {
-  //   await git.createUserRepoFolder();
-  // }
+  if (type === "create_folder_userrepo") {
+    await git.createUserRepoFolder();
+  }
 
   return ResponseDTO.status(200).json({
     result: true,

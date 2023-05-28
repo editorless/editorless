@@ -17,8 +17,7 @@ export default function Form({ className, username, hasUserRepo }: Props) {
     e.preventDefault();
 
     await axios.post("/api/git/init", {
-      // type: option,
-      type: "create_repo",
+      type: option,
     });
 
     window.location.href = "/app/setup/2";
@@ -29,17 +28,10 @@ export default function Form({ className, username, hasUserRepo }: Props) {
       <p className="text-xl font-semibold">Config Location</p>
       <p className="mt-3 text-gray-600">
         Editorless need a place to save your configs. You can choose a location
-        to save your configs. Currently, Editorless supports only one location.
+        to save your configs.
       </p>
       <form onSubmit={handleSubmit}>
-        <div className="mt-3">
-          <p className="font-bold">Create a repository for Editorless</p>
-          <p className="text-gray-600">
-            Creates private &quot;editorless&quot; repository in your GitHub
-            account.
-          </p>
-        </div>
-        {/* <div className="flex mt-3">
+        <div className="flex mt-3">
           <input
             id="option1"
             name="config-location"
@@ -67,18 +59,18 @@ export default function Form({ className, username, hasUserRepo }: Props) {
           />
           <label htmlFor="option2" className="ml-3">
             <p className="font-bold">
-              Create a folder in your account repository
+              Create a branch in your account repository
             </p>
             <p className="text-gray-600">
-              Creates a folder named &quot;.editorless&quot; in your account
+              Creates a branch named &quot;editorless&quot; in your account
               repository ({username}/{username})
             </p>
           </label>
-        </div> */}
+        </div>
         <div className="flex mt-3 justify-end">
           <button
             type="submit"
-            // disabled={option === undefined}
+            disabled={option === undefined}
             className="mt-6 rounded-md bg-purple-600 text-white px-4 py-2 hover:bg-purple-700 disabled:opacity-50"
           >
             Next

@@ -6,8 +6,12 @@ import {
   addRemote,
   checkout,
   clone,
+  commit,
   init,
   listBranches,
+  listFiles,
+  push,
+  remove,
 } from "isomorphic-git";
 import * as http from "isomorphic-git/http/node";
 
@@ -166,44 +170,59 @@ export default class Git {
     });
   }
 
-  // async createUserRepoFolder() {
-  //   const username = this.authData.username;
+  async createUserRepoFolder() {
+    const username = this.authData.username;
 
-  //   await clone({
-  //     fs: this.fs,
-  //     http: http,
-  //     dir: `${this.authData.id}/config`,
-  //     url: `https://${username}:${this.authData.token}@github.com/${username}/${username}.git`,
-  //   });
+    await clone({
+      fs: this.fs,
+      http: http,
+      dir: `${this.authData.id}/config`,
+      url: `https://${username}:${this.authData.token}@github.com/${username}/${username}.git`,
+    });
 
-  //   await this.cleanupConfig(false);
+    const files = await listFiles({
+      fs: this.fs,
+      dir: `${this.authData.id}/config`,
+    });
 
-  //   await commit({
-  //     fs: this.fs,
-  //     dir: `${this.authData.id}/config`,
-  //     message: "Initial commit",
-  //     author: {
-  //       name: this.authData.name,
-  //       email: this.authData.email,
-  //     },
-  //     ref: "editorless",
-  //   });
+    await Promise.allSettled(
+      files.map(async (file) => {
+        await remove({
+          fs: this.fs,
+          dir: `${this.authData.id}/config`,
+          filepath: file,
+        });
 
-  //   await checkout({
-  //     fs: this.fs,
-  //     dir: `${this.authData.id}/config`,
-  //     ref: "editorless",
-  //   });
+        await this.fs.promises.unlink(`${this.authData.id}/config/${file}`);
+      })
+    );
 
-  //   await push({
-  //     fs: this.fs,
-  //     http: http,
-  //     dir: `${this.authData.id}/config`,
-  //     remote: "origin",
-  //     ref: "HEAD",
-  //     remoteRef: "editorless",
-  //   });
-  // }
+    await commit({
+      fs: this.fs,
+      dir: `${this.authData.id}/config`,
+      message: "Initial commit",
+      author: {
+        name: this.authData.name,
+        email: this.authData.email,
+      },
+      ref: "editorless",
+    });
+
+    await checkout({
+      fs: this.fs,
+      dir: `${this.authData.id}/config`,
+      ref: "editorless",
+    });
+
+    await push({
+      fs: this.fs,
+      http: http,
+      dir: `${this.authData.id}/config`,
+      remote: "origin",
+      ref: "HEAD",
+      remoteRef: "editorless",
+    });
+  }
 
   async createFork(owner: string, repo: string) {
     return this.octokit.rest.repos.createFork({
