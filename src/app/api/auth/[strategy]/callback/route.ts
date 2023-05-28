@@ -15,7 +15,7 @@ export async function GET(req: Request) {
   const strategy = pathParts.pop();
 
   if (!strategy) {
-    redirect("/login?error=unknown_strategy");
+    redirect("/app/login?error=unknown_strategy");
   }
 
   let data: Record<string, string> | null = null;
@@ -24,18 +24,18 @@ export async function GET(req: Request) {
       data = await GitHubCallback(req);
     } catch (e: unknown) {
       if (e instanceof Error) {
-        redirect(`/login?error=${e.message}`);
+        redirect(`/app/login?error=${e.message}`);
       }
-      redirect("/login?error=unknown_error");
+      redirect("/app/login?error=unknown_error");
     }
   }
 
   if (!data) {
-    redirect("/login?error=unknown_strategy");
+    redirect("/app/login?error=unknown_strategy");
   }
 
-  const token = await createToken(data);
+  const token = await createToken(data.token);
   cookies().set("auth_token", token);
 
-  redirect("/");
+  redirect("/app");
 }

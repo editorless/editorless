@@ -1,6 +1,6 @@
-# Blog Editor
+# Editorless
 
-This is a simple blog editor with those features:
+Write your blog posts with GitHub and Editorless, without thinking about deploying.
 
 1. GitHub Login
 2. Create new post by

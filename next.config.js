@@ -20,6 +20,11 @@ const nextConfig = {
 
     fileLoaderRule.exclude = /\.svg$/i;
 
+    config.module = {
+      ...config.module,
+      exprContextCritical: false,
+    };
+
     return config;
   },
 };

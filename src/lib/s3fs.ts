@@ -1,7 +1,8 @@
 import {
   DeleteObjectCommand,
   GetObjectCommand,
-  GetObjectCommandOutput,
+  HeadObjectCommand,
+  HeadObjectCommandOutput,
   ListObjectsV2Command,
   ListObjectsV2CommandOutput,
   PutObjectCommand,
@@ -204,7 +205,7 @@ export default class S3FS {
       throw new NotInitializedError();
     }
 
-    const getCommand = new GetObjectCommand({
+    const headCommand = new HeadObjectCommand({
       Bucket: process.env.AWS_S3_BUCKET_NAME,
       Key: path,
     });
@@ -214,9 +215,9 @@ export default class S3FS {
       Prefix: path,
     });
 
-    let getResult: GetObjectCommandOutput | undefined = undefined;
+    let headResult: HeadObjectCommandOutput | undefined = undefined;
     try {
-      getResult = await S3FS.client.send(getCommand);
+      headResult = await S3FS.client.send(headCommand);
     } catch {}
 
     let listResult: ListObjectsV2CommandOutput | undefined = undefined;
@@ -224,8 +225,8 @@ export default class S3FS {
       listResult = await S3FS.client.send(listCommand);
     } catch {}
 
-    if (getResult?.Body) {
-      const mtime = getResult.LastModified?.getTime() ?? 0;
+    if (headResult) {
+      const mtime = headResult.LastModified?.getTime() ?? 0;
 
       return {
         isFile: () => true,
@@ -233,12 +234,13 @@ export default class S3FS {
         isSymbolicLink: () => false,
         ctimeMs: mtime,
         mtimeMs: mtime,
-        size: getResult.ContentLength,
+        size: headResult.ContentLength,
       };
-    } else if (listResult?.KeyCount !== 0) {
-      const mtimeList = listResult?.Contents?.map(
-        (content) => content.LastModified
-      ).filter(Boolean) as Date[];
+    } else if (listResult && listResult?.KeyCount !== 0) {
+      const mtimeList =
+        (listResult?.Contents?.map((content) => content.LastModified).filter(
+          Boolean
+        ) as Date[]) ?? [];
       const mtimeSortedList = mtimeList.sort(
         (a, b) => b.getTime() - a.getTime()
       );

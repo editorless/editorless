@@ -15,8 +15,6 @@ export default function LoadGit() {
     axios.post("/api/git/init", {}, { withCredentials: true })
   );
 
-  console.log(error, data);
-
   return (
     <QueryClientProvider client={clientRef.current}>
       <h1 className="text-2xl font-bold text-center">

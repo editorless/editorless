@@ -1,30 +1,38 @@
 import { Octokit } from "@octokit/rest";
 import * as jose from "jose";
 
+export type AuthData = {
+  id: string;
+  avatar: string;
+  username: string;
+  name: string;
+  email: string;
+  token: string;
+};
+const TokenDataKeys = ["id", "avatar", "username", "name", "email", "token"];
+
 const secret = new TextEncoder().encode(process.env.TOKEN_SECRET);
 
-export async function getAuthData(token?: string) {
+export async function getAuthData(token?: string, validateRemote = false) {
   if (!token) {
     return null;
   }
 
   const data = await validateTokenData(token);
+
   if (!data) {
     return null;
   }
 
-  const accessToken = data.payload.token as string;
+  if (validateRemote) {
+    const valid = await validateRemoteAccess(data.token);
 
-  // Type checking of the token payload is done at validateTokenData function
-  const remote = await validateTokenRemote(accessToken);
-  if (!remote) {
-    return null;
+    if (!valid) {
+      return null;
+    }
   }
 
-  return {
-    token: accessToken,
-    ...remote,
-  };
+  return data;
 }
 
 async function validateTokenData(token: string) {
@@ -34,36 +42,40 @@ async function validateTokenData(token: string) {
       subject: "auth",
     });
 
-    if (!("token" in data.payload) || typeof data.payload.token !== "string") {
-      return null;
-    }
+    const valid = TokenDataKeys.every((key) => key in data.payload);
 
-    return data;
-  } catch {
-    return null;
-  }
+    if (valid) {
+      return data.payload as AuthData;
+    }
+  } catch {}
+
+  return null;
 }
 
-async function validateTokenRemote(accessToken: string) {
+async function validateRemoteAccess(token: string) {
   try {
-    const octokit = new Octokit({ auth: accessToken });
+    const octokit = new Octokit({ auth: token });
     const { data } = await octokit.rest.users.getAuthenticated();
 
-    return {
-      id: data.id,
-      avatar: data.avatar_url,
-      username: data.login,
-      name: data.name,
-      email: data.email,
-    };
-  } catch {
-    return null;
-  }
+    if (data) {
+      return true;
+    }
+  } catch {}
+
+  return false;
 }
 
-export async function createToken(data: Record<string, string>) {
+export async function createToken(token: string) {
+  const octokit = new Octokit({ auth: token });
+  const { data } = await octokit.rest.users.getAuthenticated();
+
   return await new jose.SignJWT({
-    ...data,
+    token,
+    id: data.id,
+    avatar: data.avatar_url,
+    username: data.login,
+    name: data.name,
+    email: data.email,
   })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()

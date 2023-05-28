@@ -9,20 +9,20 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.335.0",
-    "@aws-sdk/signature-v4-crt": "^3.329.0",
+    "@aws-sdk/client-s3": "^3.341.0",
+    "@aws-sdk/signature-v4-crt": "^3.341.0",
     "@octokit/core": "^4.2.1",
     "@octokit/rest": "^19.0.11",
     "@octokit/types": "^9.2.3",
-    "@tanstack/react-query": "^4.29.7",
+    "@tanstack/react-query": "^4.29.11",
     "@types/node": "20.2.3",
     "@types/react": "18.2.6",
     "@types/react-dom": "18.2.4",
     "autoprefixer": "10.4.14",
     "axios": "^1.4.0",
-    "isomorphic-git": "^1.23.0",
+    "isomorphic-git": "^1.24.0",
     "jose": "^4.14.4",
-    "next": "13.4.3",
+    "next": "13.4.4",
     "postcss": "8.4.23",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@svgr/webpack": "^8.0.1",
+    "encoding": "^0.1.13",
     "rome": "^12.1.2"
   }
 }
